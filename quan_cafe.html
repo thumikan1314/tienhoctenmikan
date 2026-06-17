@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Quỹ Cà Phê ☕</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F7F5F0;
+    --surface: #FFFFFF;
+    --surface2: #F0EDE6;
+    --border: #E2DDD5;
+    --text: #1A1714;
+    --muted: #8A8278;
+    --accent: #3B6845;
+    --accent-light: #EAF2EB;
+    --accent-text: #2A4D33;
+    --danger: #C0392B;
+    --danger-light: #FDECEA;
+    --warn: #B45309;
+    --warn-light: #FEF3C7;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  body {
+    font-family: 'Be Vietnam Pro', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .shell {
+    width: 100%;
+    max-width: 420px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+  }
+
+  /* Header */
+  .header {
+    padding: 20px 20px 0;
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+  .app-title {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+  }
+  .app-title span { color: var(--accent); }
+  .settings-btn {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--muted);
+    font-size: 15px;
+    transition: background 0.15s;
+  }
+  .settings-btn:hover { background: var(--surface2); }
+
+  /* Name pill */
+  .name-bar {
+    display: flex; gap: 8px;
+    padding: 12px 20px;
+  }
+  .name-pill {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .name-pill.p1 { color: var(--accent-text); background: var(--accent-light); border-color: #C5DEC8; }
+  .name-pill.p2 { color: var(--warn); background: var(--warn-light); border-color: #FCD34D; }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    padding: 0 20px;
+    gap: 4px;
+    margin-bottom: 16px;
+  }
+  .tab {
+    flex: 1;
+    padding: 8px 0;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    color: var(--muted);
+    background: transparent;
+    border: none;
+    transition: all 0.15s;
+  }
+  .tab.active {
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+
+  /* Pages */
+  .page { display: none; flex: 1; flex-direction: column; padding: 0 20px 100px; }
+  .page.active { display: flex; }
+
+  /* Log page */
+  .date-group { margin-bottom: 20px; }
+  .date-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+  .entry-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+  .entry-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .entry-body { flex: 1; min-width: 0; }
+  .entry-desc {
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .entry-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .entry-right { text-align: right; flex-shrink: 0; }
+  .entry-amount { font-size: 14px; font-weight: 600; }
+  .entry-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 99px;
+    margin-top: 3px;
+  }
+  .badge-p1 { background: var(--accent-light); color: var(--accent-text); }
+  .badge-p2 { background: var(--warn-light); color: var(--warn); }
+
+  .empty-state {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 60px;
+    gap: 10px;
+    color: var(--muted);
+  }
+  .empty-state .icon { font-size: 40px; }
+  .empty-state p { font-size: 14px; }
+
+  /* Summary page */
+  .sum-hero {
+    background: var(--accent);
+    border-radius: var(--radius);
+    padding: 20px;
+    color: white;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .sum-hero-label { font-size: 12px; opacity: 0.75; margin-bottom: 4px; }
+  .sum-hero-value { font-size: 36px; font-weight: 600; letter-spacing: -1px; }
+
+  .sum-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .sum-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+  }
+  .sum-card-label { font-size: 11px; color: var(--muted); font-weight: 500; margin-bottom: 6px; }
+  .sum-card-value { font-size: 17px; font-weight: 600; }
+  .sum-card-sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
+
+  .verdict-card {
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    line-height: 1.5;
+  }
+  .verdict-even { background: var(--accent-light); color: var(--accent-text); }
+  .verdict-owe { background: var(--warn-light); color: var(--warn); }
+
+  .cat-breakdown {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .cat-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+  }
+  .cat-row:last-child { border-bottom: none; }
+  .cat-name { font-size: 13px; flex: 1; }
+  .cat-bar-wrap { width: 80px; height: 4px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
+  .cat-bar { height: 100%; background: var(--accent); border-radius: 99px; }
+  .cat-amount { font-size: 13px; font-weight: 600; min-width: 70px; text-align: right; }
+  .section-label {
+    font-size: 11px; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    margin-bottom: 8px; margin-top: 16px;
+  }
+
+  /* Add page */
+  .add-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .field input, .field select {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    font-size: 15px;
+    font-family: inherit;
+    color: var(--text);
+    outline: none;
+    transition: border 0.15s;
+    -webkit-appearance: none;
+  }
+  .field input:focus, .field select:focus { border-color: var(--accent); }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .payer-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .payer-opt {
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    text-align: center;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    transition: all 0.15s;
+  }
+  .payer-opt.sel-p1 { border-color: var(--accent); background: var(--accent-light); color: var(--accent-text); }
+  .payer-opt.sel-p2 { border-color: #F59E0B; background: var(--warn-light); color: var(--warn); }
+
+  .btn-submit {
+    width: 100%;
+    padding: 13px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    margin-top: 4px;
+  }
+  .btn-submit:hover { background: var(--accent-text); }
+
+  /* Bottom nav */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 420px;
+    background: rgba(247,245,240,0.92);
+    backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    padding: 8px 0 env(safe-area-inset-bottom, 8px);
+  }
+  .nav-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 6px 0;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 500;
+    transition: color 0.15s;
+  }
+  .nav-btn.active { color: var(--accent); }
+  .nav-icon { font-size: 20px; line-height: 1; }
+
+  /* Settings modal */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 100;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    width: 100%;
+    max-width: 420px;
+    background: var(--surface);
+    border-radius: 20px 20px 0 0;
+    padding: 24px 20px 40px;
+  }
+  .modal-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; }
+  .modal-field { margin-bottom: 12px; }
+  .modal-field label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .modal-field input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 15px; font-family: inherit; color: var(--text); outline: none; }
+  .modal-field input:focus { border-color: var(--accent); }
+  .modal-actions { display: flex; gap: 8px; margin-top: 16px; }
+  .btn-secondary { flex: 1; padding: 11px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: transparent; font-family: inherit; font-size: 14px; cursor: pointer; color: var(--text); }
+  .btn-primary { flex: 2; padding: 11px; border-radius: var(--radius-sm); border: none; background: var(--accent); color: white; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+
+  .toast {
+    position: fixed;
+    bottom: 80px;
+    left: 50%; transform: translateX(-50%);
+    background: var(--text);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 99px;
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 200;
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="header">
+    <div class="header-top">
+      <div class="app-title">Quỹ <span>Cà Phê</span> ☕</div>
+      <button class="settings-btn" onclick="openSettings()" title="Cài đặt tên">⚙️</button>
+    </div>
+  </div>
+
+  <div class="name-bar">
+    <div class="name-pill p1" id="pill1" onclick="openSettings()">Bạn 1</div>
+    <div class="name-pill p2" id="pill2" onclick="openSettings()">Bạn 2</div>
+  </div>
+
+  <!-- Pages -->
+  <div id="page-log" class="page active">
+    <div id="log-content"></div>
+  </div>
+
+  <div id="page-add" class="page">
+    <div class="add-form">
+      <div class="field">
+        <label>Mô tả</label>
+        <input id="f-desc" type="text" placeholder="VD: Cà phê + bánh mì" />
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Hạng mục</label>
+          <select id="f-cat">
+            <option value="☕ Đồ uống">☕ Đồ uống</option>
+            <option value="🥪 Đồ ăn">🥪 Đồ ăn</option>
+            <option value="📚 Học tập">📚 Học tập</option>
+            <option value="🚌 Đi lại">🚌 Đi lại</option>
+            <option value="📦 Khác">📦 Khác</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Số tiền (đ)</label>
+          <input id="f-amount" type="number" placeholder="50000" min="0" inputmode="numeric" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Ai trả?</label>
+        <div class="payer-pick">
+          <div class="payer-opt" id="po1" onclick="selectPayer(0)">Bạn 1</div>
+          <div class="payer-opt" id="po2" onclick="selectPayer(1)">Bạn 2</div>
+        </div>
+      </div>
+      <button class="btn-submit" onclick="addEntry()">Thêm giao dịch ✓</button>
+    </div>
+  </div>
+
+  <div id="page-sum" class="page">
+    <div id="sum-content"></div>
+  </div>
+
+  <!-- Bottom nav -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" id="nav-log" onclick="goTo('log')">
+      <span class="nav-icon">📋</span>Chi tiêu
+    </button>
+    <button class="nav-btn" id="nav-add" onclick="goTo('add')">
+      <span class="nav-icon">➕</span>Thêm
+    </button>
+    <button class="nav-btn" id="nav-sum" onclick="goTo('sum')">
+      <span class="nav-icon">📊</span>Tổng kết
+    </button>
+  </nav>
+</div>
+
+<!-- Settings modal -->
+<div class="modal-overlay" id="settings-modal" onclick="maybeCloseSettings(event)">
+  <div class="modal">
+    <div class="modal-title">Tên hai bạn</div>
+    <div class="modal-field">
+      <label>Bạn 1 (mình)</label>
+      <input id="s-n1" type="text" placeholder="Tên bạn" />
+    </div>
+    <div class="modal-field">
+      <label>Bạn 2 (bạn thân)</label>
+      <input id="s-n2" type="text" placeholder="Tên bạn thân" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeSettings()">Huỷ</button>
+      <button class="btn-primary" onclick="saveSettings()">Lưu</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let state = {
+  n1: 'Mình', n2: 'Bạn thân',
+  entries: [
+    { id: 1, desc: 'Cà phê + bánh mì', cat: '☕ Đồ uống', payer: 0, amount: 65000, date: '2025-06-17' },
+    { id: 2, desc: 'Sách luyện IELTS',  cat: '📚 Học tập',  payer: 1, amount: 120000, date: '2025-06-17' },
+    { id: 3, desc: 'Nước ép cam',        cat: '☕ Đồ uống', payer: 0, amount: 40000,  date: '2025-06-18' },
+    { id: 4, desc: 'In tài liệu',        cat: '📚 Học tập',  payer: 1, amount: 25000,  date: '2025-06-18' },
+    { id: 5, desc: 'Cà phê chiều',       cat: '☕ Đồ uống', payer: 0, amount: 50000,  date: '2025-06-19' },
+  ]
+};
+let selectedPayer = 0;
+let currentPage = 'log';
+
+function load() {
+  const saved = localStorage.getItem('quycafe');
+  if (saved) state = JSON.parse(saved);
+}
+function save() {
+  localStorage.setItem('quycafe', JSON.stringify(state));
+}
+
+function fmt(v) {
+  return Math.round(v).toLocaleString('vi-VN') + 'đ';
+}
+
+function fmtDate(d) {
+  const [y, m, day] = d.split('-');
+  return `${day}/${m}/${y}`;
+}
+
+function groupByDate(entries) {
+  const groups = {};
+  entries.slice().reverse().forEach(e => {
+    if (!groups[e.date]) groups[e.date] = [];
+    groups[e.date].push(e);
+  });
+  return groups;
+}
+
+function renderLog() {
+  const el = document.getElementById('log-content');
+  if (!state.entries.length) {
+    el.innerHTML = `<div class="empty-state"><div class="icon">☕</div><p>Chưa có giao dịch nào</p><p style="font-size:12px">Nhấn ➕ để thêm</p></div>`;
+    return;
+  }
+  const groups = groupByDate(state.entries);
+  el.innerHTML = Object.entries(groups).map(([date, items]) => {
+    const dayTotal = items.reduce((s, e) => s + e.amount, 0);
+    const cards = items.map(e => {
+      const badgeCls = e.payer === 0 ? 'badge-p1' : 'badge-p2';
+      const payerName = e.payer === 0 ? state.n1 : state.n2;
+      return `<div class="entry-card">
+        <div class="entry-icon" style="background:${catBg(e.cat)}">${catEmoji(e.cat)}</div>
+        <div class="entry-body">
+          <div class="entry-desc">${e.desc}</div>
+          <div class="entry-sub">${e.cat.replace(/^. /, '')}</div>
+        </div>
+        <div class="entry-right">
+          <div class="entry-amount">${fmt(e.amount)}</div>
+          <span class="entry-badge ${badgeCls}">${payerName}</span>
+        </div>
+      </div>`;
+    }).join('');
+    return `<div class="date-group">
+      <div class="date-label">${fmtDate(date)} · ${fmt(dayTotal)}</div>
+      ${cards}
+    </div>`;
+  }).join('');
+}
+
+function catEmoji(cat) { return cat.split(' ')[0]; }
+function catBg(cat) {
+  if (cat.includes('uống')) return '#FEF3C7';
+  if (cat.includes('ăn'))   return '#FEE2E2';
+  if (cat.includes('Học'))  return '#EAF2EB';
+  if (cat.includes('lại'))  return '#EFF6FF';
+  return '#F3F4F6';
+}
+
+function renderSum() {
+  const entries = state.entries;
+  const total = entries.reduce((s, e) => s + e.amount, 0);
+  const paid0 = entries.filter(e => e.payer === 0).reduce((s, e) => s + e.amount, 0);
+  const paid1 = entries.filter(e => e.payer === 1).reduce((s, e) => s + e.amount, 0);
+  const share = total / 2;
+  const diff0 = paid0 - share;
+
+  let verdict = '';
+  if (Math.abs(diff0) < 500) {
+    verdict = `<div class="verdict-card verdict-even">✅ Hai bạn huề nhau rồi!</div>`;
+  } else if (diff0 > 0) {
+    verdict = `<div class="verdict-card verdict-owe">💸 ${state.n2} cần trả ${state.n1} số tiền ${fmt(Math.abs(diff0))}</div>`;
+  } else {
+    verdict = `<div class="verdict-card verdict-owe">💸 ${state.n1} cần trả ${state.n2} số tiền ${fmt(Math.abs(diff0))}</div>`;
+  }
+
+  const catTotals = {};
+  entries.forEach(e => {
+    const k = e.cat;
+    catTotals[k] = (catTotals[k] || 0) + e.amount;
+  });
+  const maxCat = Math.max(...Object.values(catTotals));
+  const catRows = Object.entries(catTotals)
+    .sort((a, b) => b[1] - a[1])
+    .map(([cat, amt]) => `
+      <div class="cat-row">
+        <div style="font-size:18px;width:24px;text-align:center">${catEmoji(cat)}</div>
+        <div class="cat-name">${cat.replace(/^. /, '')}</div>
+        <div class="cat-bar-wrap"><div class="cat-bar" style="width:${Math.round(amt/maxCat*100)}%"></div></div>
+        <div class="cat-amount">${fmt(amt)}</div>
+      </div>`).join('');
+
+  document.getElementById('sum-content').innerHTML = `
+    <div class="sum-hero">
+      <div class="sum-hero-label">Tổng chi tiêu</div>
+      <div class="sum-hero-value">${fmt(total)}</div>
+    </div>
+    <div class="sum-grid">
+      <div class="sum-card">
+        <div class="sum-card-label" style="color:#2A4D33">${state.n1}</div>
+        <div class="sum-card-value">${fmt(paid0)}</div>
+        <div class="sum-card-sub">đã trả · phần ${fmt(share)}</div>
+      </div>
+      <div class="sum-card">
+        <div class="sum-card-label" style="color:#B45309">${state.n2}</div>
+        <div class="sum-card-value">${fmt(paid1)}</div>
+        <div class="sum-card-sub">đã trả · phần ${fmt(share)}</div>
+      </div>
+    </div>
+    ${verdict}
+    <div class="section-label">Chi theo hạng mục</div>
+    <div class="cat-breakdown">${catRows || '<div style="padding:14px;color:var(--muted);font-size:13px">Chưa có dữ liệu</div>'}</div>
+  `;
+}
+
+function renderNames() {
+  document.getElementById('pill1').textContent = state.n1;
+  document.getElementById('pill2').textContent = state.n2;
+  document.getElementById('po1').textContent = state.n1;
+  document.getElementById('po2').textContent = state.n2;
+}
+
+function goTo(page) {
+  currentPage = page;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.getElementById('nav-' + page).classList.add('active');
+  if (page === 'log') renderLog();
+  if (page === 'sum') renderSum();
+}
+
+function selectPayer(p) {
+  selectedPayer = p;
+  document.getElementById('po1').className = 'payer-opt' + (p === 0 ? ' sel-p1' : '');
+  document.getElementById('po2').className = 'payer-opt' + (p === 1 ? ' sel-p2' : '');
+}
+
+function addEntry() {
+  const desc = document.getElementById('f-desc').value.trim();
+  const amount = parseInt(document.getElementById('f-amount').value);
+  const cat = document.getElementById('f-cat').value;
+  if (!desc) { showToast('Nhập mô tả nhé!'); return; }
+  if (!amount || amount <= 0) { showToast('Nhập số tiền nhé!'); return; }
+  const today = new Date().toISOString().split('T')[0];
+  state.entries.push({ id: Date.now(), desc, cat, payer: selectedPayer, amount, date: today });
+  save();
+  document.getElementById('f-desc').value = '';
+  document.getElementById('f-amount').value = '';
+  showToast('Đã thêm giao dịch ✓');
+  goTo('log');
+}
+
+function openSettings() {
+  document.getElementById('s-n1').value = state.n1;
+  document.getElementById('s-n2').value = state.n2;
+  document.getElementById('settings-modal').classList.add('open');
+}
+function closeSettings() {
+  document.getElementById('settings-modal').classList.remove('open');
+}
+function maybeCloseSettings(e) {
+  if (e.target === document.getElementById('settings-modal')) closeSettings();
+}
+function saveSettings() {
+  const n1 = document.getElementById('s-n1').value.trim() || 'Bạn 1';
+  const n2 = document.getElementById('s-n2').value.trim() || 'Bạn 2';
+  state.n1 = n1; state.n2 = n2;
+  save(); renderNames();
+  if (currentPage === 'log') renderLog();
+  if (currentPage === 'sum') renderSum();
+  closeSettings();
+  showToast('Đã lưu tên ✓');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+load();
+renderNames();
+selectPayer(0);
+renderLog();
+</script>
+</body>
+</html>
