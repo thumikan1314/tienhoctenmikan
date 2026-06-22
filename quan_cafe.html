@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Quỹ Cà Phê ☕</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #F7F5F0; --surface: #FFFFFF; --surface2: #F0EDE6;
+  --border: #E2DDD5; --text: #1A1714; --muted: #8A8278;
+  --accent: #3B6845; --accent-light: #EAF2EB; --accent-text: #2A4D33;
+  --danger: #C0392B; --danger-light: #FDECEA;
+  --warn: #B45309; --warn-light: #FEF3C7;
+  --indigo: #4338CA; --indigo-light: #EEF2FF;
+  --radius: 12px; --radius-sm: 8px;
+}
+body { font-family: 'Be Vietnam Pro', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+.shell { width: 100%; max-width: 420px; min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
+
+/* Header */
+.header { padding: 20px 20px 0; }
+.header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+.app-title { font-size: 20px; font-weight: 600; letter-spacing: -0.3px; }
+.app-title span { color: var(--accent); }
+.header-actions { display: flex; gap: 8px; }
+.icon-btn { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; transition: background 0.15s; }
+.icon-btn:hover { background: var(--surface2); }
+
+/* Name pills */
+.name-bar { display: flex; gap: 8px; padding: 10px 20px; }
+.name-pill { flex: 1; border-radius: 99px; padding: 6px 14px; font-size: 13px; font-weight: 500; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.name-pill.p1 { color: var(--accent-text); background: var(--accent-light); border: 1px solid #C5DEC8; }
+.name-pill.p2 { color: var(--warn); background: var(--warn-light); border: 1px solid #FCD34D; }
+
+/* Filter bar */
+.filter-bar { display: flex; gap: 6px; padding: 0 20px 10px; overflow-x: auto; scrollbar-width: none; }
+.filter-bar::-webkit-scrollbar { display: none; }
+.filter-chip { flex-shrink: 0; padding: 5px 12px; border-radius: 99px; font-size: 12px; font-weight: 500; border: 1px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+.filter-chip.active { background: var(--accent); border-color: var(--accent); color: white; }
+
+/* Pages */
+.page { display: none; flex: 1; flex-direction: column; padding: 0 20px 90px; }
+.page.active { display: flex; }
+
+/* Log */
+.date-group { margin-bottom: 20px; }
+.date-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; display: flex; justify-content: space-between; }
+.entry-wrap { position: relative; margin-bottom: 6px; border-radius: var(--radius); overflow: hidden; }
+.action-reveal { position: absolute; right: 0; top: 0; bottom: 0; display: flex; }
+.action-btn { width: 64px; display: flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; }
+.action-btn.edit { background: #4F46E5; }
+.action-btn.del  { background: var(--danger); border-radius: 0 var(--radius) var(--radius) 0; }
+.entry-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 11px 13px; display: flex; align-items: center; gap: 11px; position: relative; transition: transform 0.25s ease; cursor: pointer; }
+.entry-card.swiped { transform: translateX(-128px); }
+.entry-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.entry-body { flex: 1; min-width: 0; }
+.entry-desc { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.entry-sub { font-size: 11px; color: var(--muted); margin-top: 2px; display: flex; gap: 5px; align-items: center; }
+.entry-right { text-align: right; flex-shrink: 0; }
+.entry-amount { font-size: 14px; font-weight: 600; }
+.entry-badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 99px; margin-top: 3px; }
+.badge-p1 { background: var(--accent-light); color: var(--accent-text); }
+.badge-p2 { background: var(--warn-light); color: var(--warn); }
+.method-dot { font-size: 10px; }
+.empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding-bottom: 80px; gap: 10px; color: var(--muted); }
+.empty-state .eicon { font-size: 40px; }
+.empty-state p { font-size: 14px; }
+
+/* Summary */
+.sum-hero { background: var(--accent); border-radius: var(--radius); padding: 20px; color: white; margin-bottom: 14px; text-align: center; }
+.sum-hero-label { font-size: 12px; opacity: 0.75; margin-bottom: 4px; }
+.sum-hero-value { font-size: 34px; font-weight: 600; letter-spacing: -1px; }
+.sum-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 14px; }
+.sum-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 13px; }
+.sum-card-label { font-size: 11px; color: var(--muted); font-weight: 500; margin-bottom: 5px; }
+.sum-card-value { font-size: 16px; font-weight: 600; }
+.sum-card-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.verdict-card { border-radius: var(--radius); padding: 14px 16px; margin-bottom: 14px; font-size: 14px; font-weight: 500; text-align: center; line-height: 1.6; }
+.verdict-even { background: var(--accent-light); color: var(--accent-text); }
+.verdict-owe  { background: var(--warn-light); color: var(--warn); }
+.remind-btn { margin-top: 10px; padding: 8px 16px; border-radius: 99px; border: 1.5px solid currentColor; background: transparent; font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; color: inherit; }
+.cat-breakdown { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.cat-row { display: flex; align-items: center; padding: 11px 14px; border-bottom: 1px solid var(--border); gap: 10px; }
+.cat-row:last-child { border-bottom: none; }
+.cat-name { font-size: 13px; flex: 1; }
+.cat-bar-wrap { width: 70px; height: 4px; background: var(--surface2); border-radius: 99px; overflow: hidden; }
+.cat-bar { height: 100%; background: var(--accent); border-radius: 99px; }
+.cat-amount { font-size: 13px; font-weight: 600; min-width: 65px; text-align: right; }
+.section-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; margin-top: 14px; }
+
+/* Add/Edit form */
+.add-form { display: flex; flex-direction: column; gap: 11px; }
+.field label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.04em; }
+.field input, .field select { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 15px; font-family: inherit; color: var(--text); outline: none; transition: border 0.15s; -webkit-appearance: none; }
+.field input:focus, .field select:focus { border-color: var(--accent); }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pick-group { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+.pick-group.three { grid-template-columns: 1fr 1fr 1fr; }
+.pick-opt { padding: 9px 6px; border-radius: var(--radius-sm); border: 1.5px solid var(--border); background: var(--surface); text-align: center; cursor: pointer; font-size: 12px; font-weight: 500; color: var(--muted); transition: all 0.15s; }
+.pick-opt.sel-p1   { border-color: var(--accent);  background: var(--accent-light); color: var(--accent-text); }
+.pick-opt.sel-p2   { border-color: #F59E0B;         background: var(--warn-light);   color: var(--warn); }
+.pick-opt.sel-cash { border-color: var(--accent);   background: var(--accent-light); color: var(--accent-text); }
+.pick-opt.sel-ck   { border-color: #6366F1;         background: var(--indigo-light); color: var(--indigo); }
+.pick-opt.sel-card { border-color: #0891B2;         background: #ECFEFF;             color: #0E7490; }
+.btn-submit { width: 100%; padding: 13px; background: var(--accent); color: white; border: none; border-radius: var(--radius); font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.15s; margin-top: 2px; }
+.btn-submit:hover { background: var(--accent-text); }
+.edit-mode-bar { background: var(--warn-light); border: 1px solid #FCD34D; border-radius: var(--radius-sm); padding: 8px 12px; font-size: 12px; color: var(--warn); font-weight: 500; display: flex; justify-content: space-between; align-items: center; }
+.cancel-edit { background: none; border: none; font-size: 12px; color: var(--warn); font-weight: 600; cursor: pointer; text-decoration: underline; font-family: inherit; }
+
+/* Nav */
+.bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 420px; background: rgba(247,245,240,0.94); backdrop-filter: blur(12px); border-top: 1px solid var(--border); display: flex; padding: 6px 0 env(safe-area-inset-bottom,6px); }
+.nav-btn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 5px 0; cursor: pointer; border: none; background: transparent; color: var(--muted); font-family: inherit; font-size: 10px; font-weight: 500; transition: color 0.15s; }
+.nav-btn.active { color: var(--accent); }
+.nav-icon { font-size: 19px; line-height: 1; }
+
+/* Modals */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: flex-end; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal { width: 100%; max-width: 420px; background: var(--surface); border-radius: 20px 20px 0 0; padding: 22px 20px 36px; max-height: 90vh; overflow-y: auto; }
+.modal-title { font-size: 16px; font-weight: 600; margin-bottom: 14px; }
+.modal-field { margin-bottom: 11px; }
+.modal-field label { display: block; font-size: 11px; font-weight: 600; color: var(--muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.04em; }
+.modal-field input { width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; font-size: 15px; font-family: inherit; color: var(--text); outline: none; }
+.modal-field input:focus { border-color: var(--accent); }
+.modal-actions { display: flex; gap: 8px; margin-top: 14px; }
+.btn-secondary { flex: 1; padding: 11px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: transparent; font-family: inherit; font-size: 14px; cursor: pointer; color: var(--text); }
+.btn-primary   { flex: 2; padding: 11px; border-radius: var(--radius-sm); border: none; background: var(--accent); color: white; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+.btn-danger-ghost { width: 100%; padding: 11px; border-radius: var(--radius-sm); border: none; background: var(--danger-light); color: var(--danger); font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 8px; }
+
+/* Remind modal */
+.remind-box { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; font-size: 14px; line-height: 1.6; white-space: pre-wrap; margin-bottom: 12px; color: var(--text); }
+.btn-copy { width: 100%; padding: 12px; border-radius: var(--radius-sm); border: none; background: var(--accent); color: white; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+
+/* Export modal */
+.export-preview { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; font-size: 12px; font-family: monospace; max-height: 200px; overflow-y: auto; margin-bottom: 12px; color: var(--text); white-space: pre; }
+
+.toast { position: fixed; bottom: 76px; left: 50%; transform: translateX(-50%); background: var(--text); color: white; padding: 9px 18px; border-radius: 99px; font-size: 13px; font-weight: 500; opacity: 0; transition: opacity 0.2s; pointer-events: none; white-space: nowrap; z-index: 300; }
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="header">
+    <div class="header-top">
+      <div class="app-title">Quỹ <span>Cà Phê</span> ☕</div>
+      <div class="header-actions">
+        <button class="icon-btn" onclick="openExport()" title="Xuất dữ liệu">📤</button>
+        <button class="icon-btn" onclick="openSettings()" title="Cài đặt">⚙️</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="name-bar">
+    <div class="name-pill p1" id="pill1">Bạn 1</div>
+    <div class="name-pill p2" id="pill2">Bạn 2</div>
+  </div>
+
+  <!-- Filter chips (log page only) -->
+  <div class="filter-bar" id="filter-bar">
+    <div class="filter-chip active" onclick="setFilter('all', this)">Tất cả</div>
+    <div class="filter-chip" onclick="setFilter('week', this)">Tuần này</div>
+    <div class="filter-chip" onclick="setFilter('month', this)">Tháng này</div>
+    <div class="filter-chip" onclick="setFilter('p1', this)" id="fchip-p1">Bạn 1</div>
+    <div class="filter-chip" onclick="setFilter('p2', this)" id="fchip-p2">Bạn 2</div>
+  </div>
+
+  <!-- Log page -->
+  <div id="page-log" class="page active">
+    <div id="log-content"></div>
+  </div>
+
+  <!-- Add/Edit page -->
+  <div id="page-add" class="page">
+    <div class="add-form">
+      <div id="edit-mode-bar" style="display:none" class="edit-mode-bar">
+        ✏️ Đang sửa giao dịch
+        <button class="cancel-edit" onclick="cancelEdit()">Huỷ sửa</button>
+      </div>
+      <div class="field">
+        <label>Mô tả</label>
+        <input id="f-desc" type="text" placeholder="VD: Cà phê + bánh mì" />
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Hạng mục</label>
+          <select id="f-cat">
+            <option value="☕ Đồ uống">☕ Đồ uống</option>
+            <option value="🥪 Đồ ăn">🥪 Đồ ăn</option>
+            <option value="📚 Học tập">📚 Học tập</option>
+            <option value="🚌 Đi lại">🚌 Đi lại</option>
+            <option value="📦 Khác">📦 Khác</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Số tiền (đ)</label>
+          <input id="f-amount" type="number" placeholder="50000" min="0" inputmode="numeric" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Ai trả?</label>
+        <div class="pick-group">
+          <div class="pick-opt" id="po1" onclick="selectPayer(0)">Bạn 1</div>
+          <div class="pick-opt" id="po2" onclick="selectPayer(1)">Bạn 2</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Hình thức</label>
+        <div class="pick-group three">
+          <div class="pick-opt" id="pm-cash" onclick="selectMethod('cash')">💵 Tiền mặt</div>
+          <div class="pick-opt" id="pm-ck"   onclick="selectMethod('ck')">🏦 Chuyển khoản</div>
+          <div class="pick-opt" id="pm-card" onclick="selectMethod('card')">💳 Thẻ</div>
+        </div>
+      </div>
+      <button class="btn-submit" id="submit-btn" onclick="submitEntry()">Thêm giao dịch ✓</button>
+    </div>
+  </div>
+
+  <!-- Summary page -->
+  <div id="page-sum" class="page">
+    <div id="sum-content"></div>
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="nav-btn active" id="nav-log" onclick="goTo('log')"><span class="nav-icon">📋</span>Chi tiêu</button>
+    <button class="nav-btn" id="nav-add" onclick="goTo('add')"><span class="nav-icon">➕</span>Thêm</button>
+    <button class="nav-btn" id="nav-sum" onclick="goTo('sum')"><span class="nav-icon">📊</span>Tổng kết</button>
+  </nav>
+</div>
+
+<!-- Settings modal -->
+<div class="modal-overlay" id="settings-modal" onclick="maybeClose(event,'settings-modal')">
+  <div class="modal">
+    <div class="modal-title">Cài đặt tên</div>
+    <div class="modal-field"><label>Tên Bạn 1</label><input id="s-n1" type="text" placeholder="VD: Thư Mikan" /></div>
+    <div class="modal-field"><label>Tên Bạn 2</label><input id="s-n2" type="text" placeholder="VD: Ten Ten" /></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('settings-modal')">Huỷ</button>
+      <button class="btn-primary" onclick="saveSettings()">Lưu</button>
+    </div>
+    <button class="btn-danger-ghost" onclick="confirmClear()">🗑 Xoá toàn bộ dữ liệu</button>
+  </div>
+</div>
+
+<!-- Confirm clear -->
+<div class="modal-overlay" id="confirm-modal" onclick="maybeClose(event,'confirm-modal')">
+  <div class="modal">
+    <div class="modal-title">Xoá toàn bộ?</div>
+    <p style="font-size:14px;color:var(--muted);margin-bottom:16px">Không thể hoàn tác sau khi xoá.</p>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('confirm-modal')">Huỷ</button>
+      <button class="btn-primary" style="background:var(--danger)" onclick="clearAll()">Xoá hết</button>
+    </div>
+  </div>
+</div>
+
+<!-- Remind modal -->
+<div class="modal-overlay" id="remind-modal" onclick="maybeClose(event,'remind-modal')">
+  <div class="modal">
+    <div class="modal-title">🔔 Nhắc trả tiền</div>
+    <div class="remind-box" id="remind-text"></div>
+    <button class="btn-copy" onclick="copyRemind()">📋 Copy tin nhắn</button>
+    <button class="btn-secondary" style="width:100%;margin-top:8px" onclick="closeModal('remind-modal')">Đóng</button>
+  </div>
+</div>
+
+<!-- Export modal -->
+<div class="modal-overlay" id="export-modal" onclick="maybeClose(event,'export-modal')">
+  <div class="modal">
+    <div class="modal-title">📤 Xuất dữ liệu</div>
+    <div class="export-preview" id="export-preview"></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal('export-modal')">Đóng</button>
+      <button class="btn-primary" onclick="downloadCSV()">⬇️ Tải về CSV</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const DEMO = [
+  { id:1, desc:'Cà phê + bánh mì', cat:'☕ Đồ uống', payer:0, method:'cash', amount:65000,  date:'2025-06-17' },
+  { id:2, desc:'Sách luyện IELTS',  cat:'📚 Học tập',  payer:1, method:'ck',   amount:120000, date:'2025-06-17' },
+  { id:3, desc:'Nước ép cam',        cat:'☕ Đồ uống', payer:0, method:'cash', amount:40000,  date:'2025-06-18' },
+  { id:4, desc:'In tài liệu',        cat:'📚 Học tập',  payer:1, method:'card', amount:25000,  date:'2025-06-18' },
+  { id:5, desc:'Cà phê chiều',       cat:'☕ Đồ uống', payer:0, method:'cash', amount:50000,  date:'2025-06-19' },
+];
+
+let state = { n1:'Bạn 1', n2:'Bạn 2', entries:[] };
+let selectedPayer = 0, selectedMethod = 'cash', currentPage = 'log';
+let swipedId = null, editId = null, activeFilter = 'all';
+
+function load() {
+  const s = localStorage.getItem('quycafe_v3');
+  if (s) state = JSON.parse(s); else state.entries = JSON.parse(JSON.stringify(DEMO));
+}
+function save() { localStorage.setItem('quycafe_v3', JSON.stringify(state)); }
+function fmt(v) { return Math.round(v).toLocaleString('vi-VN') + 'đ'; }
+function fmtDate(d) { const [y,m,day]=d.split('-'); return `${day}/${m}/${y}`; }
+function catEmoji(c) { return c.split(' ')[0]; }
+function catBg(c) {
+  if (c.includes('uống')) return '#FEF3C7';
+  if (c.includes('ăn'))   return '#FEE2E2';
+  if (c.includes('Học'))  return '#EAF2EB';
+  if (c.includes('lại'))  return '#EFF6FF';
+  return '#F3F4F6';
+}
+function methodLabel(m) {
+  return m==='ck' ? '🏦 CK' : m==='card' ? '💳 Thẻ' : '💵 TM';
+}
+function todayStr() { return new Date().toISOString().split('T')[0]; }
+function weekStart() {
+  const d=new Date(); d.setDate(d.getDate()-d.getDay()+1); return d.toISOString().split('T')[0];
+}
+function monthStart() {
+  const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-01`;
+}
+
+function filteredEntries() {
+  return state.entries.filter(e => {
+    if (activeFilter==='week')  return e.date >= weekStart();
+    if (activeFilter==='month') return e.date >= monthStart();
+    if (activeFilter==='p1')    return e.payer===0;
+    if (activeFilter==='p2')    return e.payer===1;
+    return true;
+  });
+}
+
+function setFilter(f, el) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderLog();
+}
+
+function groupByDate(entries) {
+  const g={};
+  entries.slice().reverse().forEach(e=>{ if(!g[e.date]) g[e.date]=[]; g[e.date].push(e); });
+  return g;
+}
+
+function renderLog() {
+  const el = document.getElementById('log-content');
+  const entries = filteredEntries();
+  if (!entries.length) {
+    el.innerHTML = `<div class="empty-state"><div class="eicon">☕</div><p>Không có giao dịch nào</p><p style="font-size:12px">Nhấn ➕ để thêm</p></div>`;
+    return;
+  }
+  const groups = groupByDate(entries);
+  el.innerHTML = Object.entries(groups).map(([date, items]) => {
+    const dayTotal = items.reduce((s,e)=>s+e.amount,0);
+    const cards = items.map(e => {
+      const bc = e.payer===0 ? 'badge-p1' : 'badge-p2';
+      const pn = e.payer===0 ? state.n1 : state.n2;
+      const swiped = swipedId===e.id ? ' swiped' : '';
+      return `<div class="entry-wrap" id="wrap-${e.id}">
+        <div class="action-reveal">
+          <div class="action-btn edit" onclick="startEdit(${e.id})">✏️</div>
+          <div class="action-btn del"  onclick="deleteEntry(${e.id})">🗑️</div>
+        </div>
+        <div class="entry-card${swiped}" id="card-${e.id}" onclick="toggleSwipe(${e.id})">
+          <div class="entry-icon" style="background:${catBg(e.cat)}">${catEmoji(e.cat)}</div>
+          <div class="entry-body">
+            <div class="entry-desc">${e.desc}</div>
+            <div class="entry-sub">${e.cat.replace(/^. /,'')} <span class="method-dot">· ${methodLabel(e.method||'cash')}</span></div>
+          </div>
+          <div class="entry-right">
+            <div class="entry-amount">${fmt(e.amount)}</div>
+            <span class="entry-badge ${bc}">${pn}</span>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+    return `<div class="date-group">
+      <div class="date-label"><span>${fmtDate(date)}</span><span>${fmt(dayTotal)}</span></div>
+      ${cards}
+    </div>`;
+  }).join('');
+}
+
+function toggleSwipe(id) {
+  if (swipedId && swipedId!==id) {
+    const prev=document.getElementById('card-'+swipedId);
+    if(prev) prev.classList.remove('swiped');
+  }
+  const card=document.getElementById('card-'+id);
+  if(!card) return;
+  const isSwiped = card.classList.toggle('swiped');
+  swipedId = isSwiped ? id : null;
+}
+
+function deleteEntry(id) {
+  state.entries = state.entries.filter(e=>e.id!==id);
+  save(); swipedId=null; renderLog(); showToast('Đã xoá ✓');
+}
+
+function startEdit(id) {
+  const e = state.entries.find(x=>x.id===id);
+  if (!e) return;
+  editId = id; swipedId = null;
+  document.getElementById('f-desc').value   = e.desc;
+  document.getElementById('f-cat').value    = e.cat;
+  document.getElementById('f-amount').value = e.amount;
+  selectPayer(e.payer);
+  selectMethod(e.method||'cash');
+  document.getElementById('edit-mode-bar').style.display = 'flex';
+  document.getElementById('submit-btn').textContent = 'Lưu thay đổi ✓';
+  goTo('add');
+}
+
+function cancelEdit() {
+  editId=null;
+  document.getElementById('edit-mode-bar').style.display='none';
+  document.getElementById('submit-btn').textContent='Thêm giao dịch ✓';
+  document.getElementById('f-desc').value='';
+  document.getElementById('f-amount').value='';
+}
+
+function submitEntry() {
+  const desc   = document.getElementById('f-desc').value.trim();
+  const amount = parseInt(document.getElementById('f-amount').value);
+  const cat    = document.getElementById('f-cat').value;
+  if (!desc)               { showToast('Nhập mô tả nhé!'); return; }
+  if (!amount||amount<=0)  { showToast('Nhập số tiền nhé!'); return; }
+
+  if (editId) {
+    const idx = state.entries.findIndex(e=>e.id===editId);
+    if (idx>-1) state.entries[idx] = { ...state.entries[idx], desc, cat, payer:selectedPayer, method:selectedMethod, amount };
+    cancelEdit();
+    showToast('Đã lưu ✓');
+  } else {
+    state.entries.push({ id:Date.now(), desc, cat, payer:selectedPayer, method:selectedMethod, amount, date:todayStr() });
+    document.getElementById('f-desc').value='';
+    document.getElementById('f-amount').value='';
+    showToast('Đã thêm ✓');
+  }
+  save(); goTo('log');
+}
+
+function renderSum() {
+  const entries = state.entries;
+  const total = entries.reduce((s,e)=>s+e.amount,0);
+  const paid0 = entries.filter(e=>e.payer===0).reduce((s,e)=>s+e.amount,0);
+  const paid1 = entries.filter(e=>e.payer===1).reduce((s,e)=>s+e.amount,0);
+  const share = total/2, diff0 = paid0-share;
+
+  let verdict='', remindBtn='';
+  if (!entries.length) {
+    verdict = `<div class="verdict-card verdict-even">Chưa có giao dịch nào</div>`;
+  } else if (Math.abs(diff0)<500) {
+    verdict = `<div class="verdict-card verdict-even">✅ Hai bạn huề nhau rồi!</div>`;
+  } else {
+    const ower  = diff0>0 ? state.n2 : state.n1;
+    const payee = diff0>0 ? state.n1 : state.n2;
+    const amt   = fmt(Math.abs(diff0));
+    verdict = `<div class="verdict-card verdict-owe">
+      💸 <strong>${ower}</strong> cần trả <strong>${payee}</strong><br>${amt}
+      <br><button class="remind-btn" onclick="openRemind('${ower}','${payee}','${amt}')">🔔 Nhắc trả tiền</button>
+    </div>`;
+  }
+
+  const cashAmt = entries.filter(e=>(e.method||'cash')==='cash').reduce((s,e)=>s+e.amount,0);
+  const ckAmt   = entries.filter(e=>e.method==='ck').reduce((s,e)=>s+e.amount,0);
+  const cardAmt = entries.filter(e=>e.method==='card').reduce((s,e)=>s+e.amount,0);
+
+  const catTotals={};
+  entries.forEach(e=>{ catTotals[e.cat]=(catTotals[e.cat]||0)+e.amount; });
+  const maxCat=Math.max(...Object.values(catTotals),1);
+  const catRows=Object.entries(catTotals).sort((a,b)=>b[1]-a[1]).map(([cat,amt])=>`
+    <div class="cat-row">
+      <div style="font-size:17px;width:22px;text-align:center">${catEmoji(cat)}</div>
+      <div class="cat-name">${cat.replace(/^. /,'')}</div>
+      <div class="cat-bar-wrap"><div class="cat-bar" style="width:${Math.round(amt/maxCat*100)}%"></div></div>
+      <div class="cat-amount">${fmt(amt)}</div>
+    </div>`).join('');
+
+  document.getElementById('sum-content').innerHTML = `
+    <div class="sum-hero">
+      <div class="sum-hero-label">Tổng chi tiêu · ${entries.length} giao dịch</div>
+      <div class="sum-hero-value">${fmt(total)}</div>
+    </div>
+    <div class="sum-grid">
+      <div class="sum-card">
+        <div class="sum-card-label" style="color:var(--accent-text)">${state.n1}</div>
+        <div class="sum-card-value">${fmt(paid0)}</div>
+        <div class="sum-card-sub">đã trả · phần ${fmt(Math.round(share))}</div>
+      </div>
+      <div class="sum-card">
+        <div class="sum-card-label" style="color:var(--warn)">${state.n2}</div>
+        <div class="sum-card-value">${fmt(paid1)}</div>
+        <div class="sum-card-sub">đã trả · phần ${fmt(Math.round(share))}</div>
+      </div>
+    </div>
+    ${verdict}
+    <div class="section-label">Hình thức thanh toán</div>
+    <div class="sum-grid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:0">
+      <div class="sum-card"><div class="sum-card-label">💵 TM</div><div class="sum-card-value" style="font-size:14px">${fmt(cashAmt)}</div></div>
+      <div class="sum-card"><div class="sum-card-label">🏦 CK</div><div class="sum-card-value" style="font-size:14px">${fmt(ckAmt)}</div></div>
+      <div class="sum-card"><div class="sum-card-label">💳 Thẻ</div><div class="sum-card-value" style="font-size:14px">${fmt(cardAmt)}</div></div>
+    </div>
+    <div class="section-label">Chi theo hạng mục</div>
+    <div class="cat-breakdown">${catRows||'<div style="padding:14px;color:var(--muted);font-size:13px">Chưa có dữ liệu</div>'}</div>
+  `;
+}
+
+function renderNames() {
+  document.getElementById('pill1').textContent = state.n1;
+  document.getElementById('pill2').textContent = state.n2;
+  document.getElementById('po1').textContent   = state.n1;
+  document.getElementById('po2').textContent   = state.n2;
+  document.getElementById('fchip-p1').textContent = state.n1;
+  document.getElementById('fchip-p2').textContent = state.n2;
+}
+
+function goTo(page) {
+  currentPage = page; swipedId = null;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.getElementById('nav-'+page).classList.add('active');
+  document.getElementById('filter-bar').style.display = page==='log' ? 'flex' : 'none';
+  if (page==='log') renderLog();
+  if (page==='sum') renderSum();
+}
+
+function selectPayer(p) {
+  selectedPayer=p;
+  document.getElementById('po1').className='pick-opt'+(p===0?' sel-p1':'');
+  document.getElementById('po2').className='pick-opt'+(p===1?' sel-p2':'');
+}
+function selectMethod(m) {
+  selectedMethod=m;
+  document.getElementById('pm-cash').className='pick-opt'+(m==='cash'?' sel-cash':'');
+  document.getElementById('pm-ck').className  ='pick-opt'+(m==='ck'  ?' sel-ck'  :'');
+  document.getElementById('pm-card').className='pick-opt'+(m==='card'?' sel-card':'');
+}
+
+function openSettings() {
+  document.getElementById('s-n1').value=state.n1;
+  document.getElementById('s-n2').value=state.n2;
+  document.getElementById('settings-modal').classList.add('open');
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function maybeClose(e,id) { if(e.target===document.getElementById(id)) closeModal(id); }
+function saveSettings() {
+  state.n1=document.getElementById('s-n1').value.trim()||'Bạn 1';
+  state.n2=document.getElementById('s-n2').value.trim()||'Bạn 2';
+  save(); renderNames();
+  if(currentPage==='log') renderLog();
+  if(currentPage==='sum') renderSum();
+  closeModal('settings-modal'); showToast('Đã lưu ✓');
+}
+function confirmClear() { closeModal('settings-modal'); document.getElementById('confirm-modal').classList.add('open'); }
+function clearAll() { state.entries=[]; save(); closeModal('confirm-modal'); renderLog(); showToast('Đã xoá toàn bộ'); }
+
+function openRemind(ower, payee, amt) {
+  const total = state.entries.reduce((s,e)=>s+e.amount,0);
+  const msg = `Ê ${ower}! 👋\nTổng chi tiêu của tụi mình là ${fmt(total)}.\nMỗi người chịu ${fmt(Math.round(total/2))}.\nBạn cần trả ${payee} ${amt} nha 😊\n\n_(Quỹ Cà Phê ☕)_`;
+  document.getElementById('remind-text').textContent = msg;
+  document.getElementById('remind-modal').classList.add('open');
+}
+function copyRemind() {
+  const txt = document.getElementById('remind-text').textContent;
+  navigator.clipboard.writeText(txt).then(()=>showToast('Đã copy ✓')).catch(()=>showToast('Copy thủ công nhé!'));
+}
+
+function openExport() {
+  const lines = ['Ngày,Mô tả,Hạng mục,Người trả,Hình thức,Số tiền'];
+  state.entries.forEach(e=>{
+    const pn = e.payer===0?state.n1:state.n2;
+    const m  = e.method==='ck'?'Chuyển khoản':e.method==='card'?'Thẻ':'Tiền mặt';
+    lines.push(`${fmtDate(e.date)},"${e.desc}",${e.cat.replace(/^. /,'')},"${pn}",${m},${e.amount}`);
+  });
+  const csv = lines.join('\n');
+  document.getElementById('export-preview').textContent = lines.slice(0,6).join('\n') + (lines.length>6?'\n...':'');
+  document.getElementById('export-modal').classList.add('open');
+  document._exportCSV = csv;
+}
+function downloadCSV() {
+  const blob = new Blob(['\uFEFF'+document._exportCSV], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `quycafe_${todayStr()}.csv`;
+  a.click();
+  showToast('Đã tải về ✓');
+}
+
+function showToast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+load(); renderNames(); selectPayer(0); selectMethod('cash'); renderLog();
+</script>
+</body>
+</html>
